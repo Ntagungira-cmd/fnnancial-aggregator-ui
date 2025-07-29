@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinanceHub - Financial Data Aggregator</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <nav class="nav">
+        <div class="logo">
+          <i class="fas fa-chart-line"></i> FinanceHub
+        </div>
+        <ul class="nav-links" id="navLinks">
+          <li><a href="#" onclick="showSection('dashboard')" class="active">Dashboard</a></li>
+          <li><a href="#" onclick="showSection('currency')">Currency</a></li>
+          <li><a href="#" onclick="showSection('stocks')">Stocks</a></li>
+          <li><a href="#" onclick="showSection('budget')">Budget</a></li>
+          <li><a href="#" onclick="showSection('alerts')">Alerts</a></li>
+        </ul>
+        <div class="auth-buttons" id="authButtons">
+          <button class="btn btn-secondary" onclick="showModal('loginModal')">Login</button>
+          <button class="btn btn-primary" onclick="showModal('registerModal')">Register</button>
+        </div>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+          <i class="fas fa-bars"></i>
+        </button>
+      </nav>
+    </div>
+  </header>
+  <!-- Main Content -->
+  <main class="main">
+    <div class="container">
+      <!-- Dashboard Section -->
+      <section id="dashboard" class="section active">
+        <h1 class="section-title">Financial Dashboard</h1>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="color: var(--primary-color);">
+              <i class="fas fa-exchange-alt"></i>
+            </div>
+            <div class="stat-value" id="totalCurrencies">150+</div>
+            <div class="stat-label">Supported Currencies</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="color: var(--secondary-color);">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-value" id="totalStocks">5,000+</div>
+            <div class="stat-label">Tracked Stocks</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="color: var(--warning-color);">
+              <i class="fas fa-wallet"></i>
+            </div>
+            <div class="stat-value" id="totalBudgets">$0</div>
+            <div class="stat-label">Total Budget</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="color: var(--danger-color);">
+              <i class="fas fa-bell"></i>
+            </div>
+            <div class="stat-value" id="activeAlerts">0</div>
+            <div class="stat-label">Active Alerts</div>
+          </div>
+        </div>
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Market Indices</h3>
+              <button class="btn btn-primary" onclick="loadMarketIndices()">
+                <i class="fas fa-sync-alt"></i> Refresh
+              </button>
+            </div>
+            <div id="marketIndices">
+              <div class="loading"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Trending Stocks</h3>
+              <button class="btn btn-primary" onclick="loadTrendingStocks()">
+                <i class="fas fa-sync-alt"></i> Refresh
+              </button>
+            </div>
+            <div id="trendingStocks">
+              <div class="loading"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Portfolio Performance</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="portfolioChart"></canvas>
+          </div>
+        </div>
+      </section>
+      <!-- Currency Section -->
+      <section id="currency" class="section">
+        <h1 class="section-title">Currency Exchange</h1>
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Currency Converter</h3>
+            </div>
+            <form id="currencyConverterForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">From</label>
+                  <select class="form-input" id="fromCurrency" required>
+                    <option value="">Select Currency</option>
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="EUR">EUR - Euro</option>
+                    <option value="GBP">GBP - British Pound</option>
+                    <option value="JPY">JPY - Japanese Yen</option>
+                    <option value="CAD">CAD - Canadian Dollar</option>
+                    <option value="AUD">AUD - Australian Dollar</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">To</label>
+                  <select class="form-input" id="toCurrency" required>
+                    <option value="">Select Currency</option>
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="EUR">EUR - Euro</option>
+                    <option value="GBP">GBP - British Pound</option>
+                    <option value="JPY">JPY - Japanese Yen</option>
+                    <option value="CAD">CAD - Canadian Dollar</option>
+                    <option value="AUD">AUD - Australian Dollar</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Amount</label>
+                <input type="number" class="form-input" id="amount" placeholder="Enter amount" min="0" step="0.01"
+                  required>
+                <div class="form-error" id="amountError"></div>
+              </div>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-exchange-alt"></i> Convert
+              </button>
+            </form>
+            <div id="conversionResult" class="mt-2"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Exchange Rates</h3>
+              <select class="form-input" id="baseCurrency" style="width: auto;" onchange="loadExchangeRates()">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="JPY">JPY</option>
+              </select>
+            </div>
+            <div id="exchangeRates">
+              <div class="loading"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Historical Exchange Rates</h3>
+          </div>
+          <div class="form-row mb-2">
+            <div class="form-group">
+              <label class="form-label">Base Currency</label>
+              <select class="form-input" id="historyBaseCurrency">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Target Currency</label>
+              <select class="form-input" id="historyTargetCurrency">
+                <option value="EUR">EUR</option>
+                <option value="USD">USD</option>
+                <option value="GBP">GBP</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Days</label>
+              <input type="number" class="form-input" id="historyDays" value="30" min="1" max="365">
+            </div>
+            <div class="form-group">
+              <label class="form-label">&nbsp;</label>
+              <button class="btn btn-primary" onclick="loadHistoricalRates()">
+                <i class="fas fa-chart-line"></i> Load Chart
+              </button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="historicalChart"></canvas>
+          </div>
+        </div>
+      </section>
+      <!-- Stocks Section -->
+      <section id="stocks" class="section">
+        <h1 class="section-title">Stock Market</h1>
+        <div class="card mb-2">
+          <div class="card-header">
+            <h3 class="card-title">Stock Search</h3>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <input type="text" class="form-input" id="stockSearch" placeholder="Search stocks (e.g., AAPL, GOOGL)">
+            </div>
+            <div class="form-group">
+              <button class="btn btn-primary" onclick="searchStocks()">
+                <i class="fas fa-search"></i> Search
+              </button>
+            </div>
+          </div>
+          <div id="stockSearchResults"></div>
+        </div>
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Stock Quote</h3>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Stock Symbol</label>
+              <input type="text" class="form-input" id="stockSymbol" placeholder="e.g., AAPL"
+                style="text-transform: uppercase;">
+            </div>
+            <button class="btn btn-primary" onclick="getStockQuote()">
+              <i class="fas fa-chart-bar"></i> Get Quote
+            </button>
+            <div id="stockQuoteResult" class="mt-2"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Watchlist</h3>
+              <button class="btn btn-primary" onclick="showModal('addWatchlistModal')">
+                <i class="fas fa-plus"></i> Add Stock
+              </button>
+            </div>
+            <div id="watchlist">
+              <p class="text-center" style="color: var(--text-secondary);">No stocks in watchlist</p>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Stock Historical Data</h3>
+          </div>
+          <div class="form-row mb-2">
+            <div class="form-group">
+              <label class="form-label">Stock Symbol</label>
+              <input type="text" class="form-input" id="historicalStockSymbol" placeholder="e.g., AAPL"
+                style="text-transform: uppercase;">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Days</label>
+              <input type="number" class="form-input" id="historicalStockDays" value="30" min="1" max="365">
+            </div>
+            <div class="form-group">
+              <label class="form-label">&nbsp;</label>
+              <button class="btn btn-primary" onclick="loadStockHistoricalData()">
+                <i class="fas fa-chart-line"></i> Load Chart
+              </button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="stockHistoricalChart"></canvas>
+          </div>
+        </div>
+      </section>
+      <!-- Budget Section -->
+      <section id="budget" class="section">
+        <h1 class="section-title">Budget Management</h1>
+        <div class="card mb-2">
+          <div class="card-header">
+            <h3 class="card-title">Budget Summary</h3>
+            <select class="form-input" id="budgetSummaryCurrency" style="width: auto;" onchange="loadBudgetSummary()">
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+              <option value="RWF">RWF</option>
+            </select>
+          </div>
+          <div id="budgetSummary">
+            <p class="text-center" style="color: var(--text-secondary);">No budgets created yet</p>
+          </div>
+        </div>
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Create Budget</h3>
+            </div>
+            <form id="budgetForm">
+              <div class="form-group">
+                <label class="form-label">Budget Name</label>
+                <input type="text" class="form-input" id="budgetName" placeholder="e.g., Monthly Expenses" required>
+                <div class="form-error" id="budgetNameError"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Amount</label>
+                  <input type="number" class="form-input" id="budgetAmount" placeholder="0.00" min="0" step="0.01"
+                    required>
+                  <div class="form-error" id="budgetAmountError"></div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Currency</label>
+                  <select class="form-input" id="budgetCurrency" required>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="RWF">RWF</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Categories</label>
+                <div class="grid grid-3" style="gap: 0.5rem;">
+                  <label><input type="checkbox" value="housing"> Housing</label>
+                  <label><input type="checkbox" value="transportation"> Transportation</label>
+                  <label><input type="checkbox" value="food"> Food</label>
+                  <label><input type="checkbox" value="utilities"> Utilities</label>
+                  <label><input type="checkbox" value="healthcare"> Healthcare</label>
+                  <label><input type="checkbox" value="entertainment"> Entertainment</label>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Period</label>
+                  <select class="form-input" id="budgetPeriod" required>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly" selected>Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="yearly">Yearly</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Start Date</label>
+                  <input type="date" class="form-input" id="budgetStartDate" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">End Date</label>
+                  <input type="date" class="form-input" id="budgetEndDate" required>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create Budget
+              </button>
+            </form>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">My Budgets</h3>
+            </div>
+            <div id="budgetList">
+              <p class="text-center" style="color: var(--text-secondary);">No budgets created yet</p>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Budget Analytics</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="budgetChart"></canvas>
+          </div>
+        </div>
+      </section>
+      <!-- Alerts Section -->
+      <section id="alerts" class="section">
+        <h1 class="section-title">Price Alerts</h1>
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Create Alert</h3>
+            </div>
+            <form id="alertForm">
+              <div class="form-group">
+                <label class="form-label">Alert Type</label>
+                <select class="form-input" id="alertType" required onchange="updateAlertTargetOptions()">
+                  <option value="">Select Type</option>
+                  <option value="stock">Stock Price</option>
+                  <option value="currency">Currency Rate</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Target</label>
+                <input type="text" class="form-input" id="alertTarget" placeholder="e.g., AAPL or USD/EUR" required>
+                <div class="form-error" id="alertTargetError"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Condition</label>
+                  <select class="form-input" id="alertCondition" required>
+                    <option value="">Select Condition</option>
+                    <option value="above">Above</option>
+                    <option value="below">Below</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Value</label>
+                  <input type="number" class="form-input" id="alertValue" placeholder="0.00" min="0" step="0.01"
+                    required>
+                  <div class="form-error" id="alertValueError"></div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Notification Email</label>
+                <input type="email" class="form-input" id="alertEmail" placeholder="your@email.com" required>
+                <div class="form-error" id="alertEmailError"></div>
+              </div>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-bell"></i> Create Alert
+              </button>
+            </form>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Active Alerts</h3>
+            </div>
+            <div id="alertsList">
+              <p class="text-center" style="color: var(--text-secondary);">No alerts created yet</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="hideModal('loginModal')">&times;</button>
+      <h2 class="mb-2">Login</h2>
+      <form id="loginForm">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" id="loginEmail" required>
+          <div class="form-error" id="loginEmailError"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="loginPassword" required>
+          <div class="form-error" id="loginPasswordError"></div>
+        </div>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-sign-in-alt"></i> Login
+        </button>
+      </form>
+    </div>
+  </div>
+  <!-- Register Modal -->
+  <div id="registerModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="hideModal('registerModal')">&times;</button>
+      <h2 class="mb-2">Register</h2>
+      <form id="registerForm">
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input type="text" class="form-input" id="registerName" required>
+          <div class="form-error" id="registerNameError"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" id="registerEmail" required>
+          <div class="form-error" id="registerEmailError"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="registerPassword" required>
+          <div class="form-error" id="registerPasswordError"></div>
+        </div>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-user-plus"></i> Register
+        </button>
+      </form>
+    </div>
+  </div>
+  <!-- Add to Watchlist Modal -->
+  <div id="addWatchlistModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="hideModal('addWatchlistModal')">&times;</button>
+      <h2 class="mb-2">Add to Watchlist</h2>
+      <form id="watchlistForm">
+        <div class="form-group">
+          <label class="form-label">Stock Symbol</label>
+          <input type="text" class="form-input" id="watchlistSymbol" placeholder="e.g., AAPL"
+            style="text-transform: uppercase;" required>
+          <div class="form-error" id="watchlistSymbolError"></div>
+        </div>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Add to Watchlist
+        </button>
+      </form>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+
+</html>
